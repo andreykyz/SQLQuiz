@@ -1,7 +1,8 @@
 package ru.devhead.SQLQuiz.client;
 
 import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.core.client.JsArray;
+import com.google.gwt.core.client.GWT;
+//import com.google.gwt.core.client.JsArray;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.http.client.Request;
@@ -10,12 +11,15 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.URL;
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.client.ui.*;
 
 public class ValidatorGui implements EntryPoint {
 
-	private static final String JSON_BASE_URL = "http://vz.devhead.ru:7080/";
-	private static final String JSON_URL = JSON_BASE_URL + "getqueryresult?q=";
+	private static final String JSON_BASE_URL = GWT.getModuleBaseURL();//"http://vz.devhead.ru:7080/";
+	private static final String JSON_URL = "http://192.168.0.102";//JSON_BASE_URL + "getqueryresult?q=";
 
 	// Компоненты дизайна
 	HorizontalPanel upperPanel = new HorizontalPanel();
@@ -79,12 +83,13 @@ public class ValidatorGui implements EntryPoint {
 
 	void executeButtonClick() {
 
-		String url = URL.encode(JSON_URL + queryPlace.getText());
+		String url = JSON_URL;//URL.encode(JSON_URL + queryPlace.getText());
 
 		// Send request to server and catch any errors.
 		RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
 
 		try {
+			@SuppressWarnings("unused")
 			Request request = builder.sendRequest(null, new RequestCallback() {
 				public void onError(Request request, Throwable exception) {
 					displayError("Couldn't retrieve JSON");
@@ -93,10 +98,13 @@ public class ValidatorGui implements EntryPoint {
 				public void onResponseReceived(Request request,
 						Response response) {
 					if (200 == response.getStatusCode()) {
+//						loadTableModelQueryResult(JSONParser.parseLenient(response.getText()));
+						displayError("200");
 //						updateTable(asArrayOfStockData(response.getText()));
 					} else {
 						displayError("Couldn't retrieve JSON ("
 								+ response.getStatusText() + ")");
+						
 					}
 				}
 			});
@@ -104,6 +112,16 @@ public class ValidatorGui implements EntryPoint {
 			displayError("Couldn't retrieve JSON");
 		}
 
+	}
+
+	void loadTableModelQueryResult(JSONValue parseLenient) {
+		JSONArray ar = (JSONArray)parseLenient;
+		for (int i=0; i<ar.size();i++) {
+			for (int j=0; j<((JSONArray)ar.get(i)).size();j++) {
+				tableModelQueryResult[i][j] = ((JSONArray)ar.get(i)).get(j).toString();
+			}
+		}
+		fireTableQueryResultUpdate();
 	}
 
 	void fireTableQueryResultUpdate() {
@@ -142,8 +160,8 @@ public class ValidatorGui implements EntryPoint {
 	/**
 	 * Convert the string of JSON into JavaScript object.
 	 */
-	// private final native JsArray asArrayOfStockData(String json) /*-{
-	// return eval(json);
-	// }-*/;
+//	 private final native JsArray asArrayOfStockData(String json) /*-{
+//	 return eval(json);
+//	 }-*/;
 
 }

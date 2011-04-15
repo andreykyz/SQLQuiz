@@ -6,4 +6,5 @@
 	<!-- <inherits name="com.google.gwt.user.theme.chrome.Chrome" /> -->
 	<entry-point class='ru.devhead.SQLQuiz.client.ValidatorGui' />
 	<source path="client" />
+	<inherits name="com.google.gwt.json.JSON"/>
 </module>
