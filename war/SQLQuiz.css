@@ -1,0 +1,27 @@
+@CHARSET "UTF-8";
+
+body {
+	padding: 10px;
+}
+
+.buttonPanel {
+  margin: 0px 0px 0px 5px;
+  padding: 0px;
+}
+
+.flexTable {
+	border: 1px dotted #CCCCCC;
+	border-collapse: collapse;
+	font-family: 'Courier New','Lucida Console',serif;
+}
+
+.flexTableHeader {
+	background: none repeat scroll 0 0 #EEEEEE;
+	color: #464646;
+    font-family: 'Courier New','Lucida Console',serif;
+/*	border: 1px dotted #CCCCCC;*/
+}
+
+/*.getResultButton {
+	margin: 100px;
+	}*/
