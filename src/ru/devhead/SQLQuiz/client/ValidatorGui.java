@@ -75,7 +75,6 @@ public class ValidatorGui implements EntryPoint {
 			}
 
 		});
-		executeButtonClick();
 	}
 
 	void executeButtonClick() {
@@ -124,7 +123,7 @@ public class ValidatorGui implements EntryPoint {
 	}
 
 	/**
-	 * Convert the string of JSON into JavaScript object.
+	 * Не знаю зачем это, но так было в доке.
 	 */
 	private final native JSONRequester asNORMAL_ARRAY(JavaScriptObject json) /*-{
 	 return eval(json);
@@ -135,6 +134,7 @@ public class ValidatorGui implements EntryPoint {
 	 */
 	public native static void getJson(int requestId, String url,
 			ValidatorGui handler) /*-{
+				//имя callback функции
 	   var callback = "callback125";
 
 	   // [1] Create a script element.
