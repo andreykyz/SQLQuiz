@@ -2,24 +2,19 @@ package ru.devhead.SQLQuiz.client;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JavaScriptObject;
 //import com.google.gwt.core.client.JsArray;
+//import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
-import com.google.gwt.http.client.Response;
-import com.google.gwt.http.client.URL;
-import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.client.ui.*;
 
 public class ValidatorGui implements EntryPoint {
 
+	private int jsonRequestId = 0;//callback id
+	
 	private static final String JSON_BASE_URL = GWT.getModuleBaseURL();//"http://vz.devhead.ru:7080/";
-	private static final String JSON_URL = "http://192.168.0.102";//JSON_BASE_URL + "getqueryresult?q=";
+	private static final String JSON_URL = "http://192.168.0.102/index.html";//JSON_BASE_URL + "getqueryresult?q=";
 
 	// Компоненты дизайна
 	HorizontalPanel upperPanel = new HorizontalPanel();
@@ -38,7 +33,7 @@ public class ValidatorGui implements EntryPoint {
 	FlexTable tableQueryResult = new FlexTable();
 	FlexTable tableSolution = new FlexTable();
 
-	String[][] tableModelQueryResult;
+	String[][] tableModelQueryResult = {{"rrrr","Rrrr"},{"gdfgf","gdgdf"}};
 
 	@Override
 	public void onModuleLoad() {
@@ -74,53 +69,24 @@ public class ValidatorGui implements EntryPoint {
 
 			@Override
 			public void onClick(ClickEvent event) {
-
+//				loadTableModelQueryResult("[[\"f\",\"d\",\"g\"],[\"ads\",\"fsdf\",\"fsdf\"],[\"5345345\",\"45345345\",\"534534\"]]" );
+//				loadTableModelQueryResult(asNORMAL_ARRAY("[[\"f\",\"d\",\"g\"],[\"ads\",\"fsdf\",\"fsdf\"],[\"5345345\",\"45345345\",\"534534\"]]").getThis());
 				executeButtonClick();
 			}
 
 		});
+		executeButtonClick();
 	}
 
 	void executeButtonClick() {
 
 		String url = JSON_URL;//URL.encode(JSON_URL + queryPlace.getText());
-
-		// Send request to server and catch any errors.
-		RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
-
-		try {
-			@SuppressWarnings("unused")
-			Request request = builder.sendRequest(null, new RequestCallback() {
-				public void onError(Request request, Throwable exception) {
-					displayError("Couldn't retrieve JSON");
-				}
-
-				public void onResponseReceived(Request request,
-						Response response) {
-					if (200 == response.getStatusCode()) {
-//						loadTableModelQueryResult(JSONParser.parseLenient(response.getText()));
-						displayError("200");
-//						updateTable(asArrayOfStockData(response.getText()));
-					} else {
-						displayError("Couldn't retrieve JSON ("
-								+ response.getStatusText() + ")");
-						
-					}
-				}
-			});
-		} catch (RequestException e) {
-			displayError("Couldn't retrieve JSON");
-		}
+		getJson(jsonRequestId++, url, this);
 
 	}
 
-	void loadTableModelQueryResult(JSONValue parseLenient) {
-		JSONArray ar = (JSONArray)parseLenient;
-		for (int i=0; i<ar.size();i++) {
-			for (int j=0; j<((JSONArray)ar.get(i)).size();j++) {
-				tableModelQueryResult[i][j] = ((JSONArray)ar.get(i)).get(j).toString();
-			}
-		}
+	void loadTableModelQueryResult(String[][] parseLenient) {
+		tableModelQueryResult = parseLenient;
 		fireTableQueryResultUpdate();
 	}
 
@@ -160,8 +126,57 @@ public class ValidatorGui implements EntryPoint {
 	/**
 	 * Convert the string of JSON into JavaScript object.
 	 */
-//	 private final native JsArray asArrayOfStockData(String json) /*-{
-//	 return eval(json);
-//	 }-*/;
+	private final native JSONRequester asNORMAL_ARRAY(JavaScriptObject json) /*-{
+	 return eval(json);
+	 }-*/;
+
+	/**
+	 * Make call to remote server.
+	 */
+	public native static void getJson(int requestId, String url,
+			ValidatorGui handler) /*-{
+	   var callback = "callback125";
+
+	   // [1] Create a script element.
+	   var script = document.createElement("script");
+	   script.setAttribute("src", url);
+	   script.setAttribute("type", "text/javascript");
+
+	   // [2] Define the callback function on the window object.
+	   window[callback] = function(jsonObj) {
+	   // [3]
+	     handler.@ru.devhead.SQLQuiz.client.ValidatorGui::handleJsonResponse(Lcom/google/gwt/core/client/JavaScriptObject;)(jsonObj);
+	     window[callback + "done"] = true;
+	   }
+
+	   // [4] JSON download has 1-second timeout.
+	   setTimeout(function() {
+	     if (!window[callback + "done"]) {
+	       handler.@ru.devhead.SQLQuiz.client.ValidatorGui::handleJsonResponse(Lcom/google/gwt/core/client/JavaScriptObject;)(null);
+	     }
+
+	     // [5] Cleanup. Remove script and callback elements.
+	     document.body.removeChild(script);
+	     delete window[callback];
+	     delete window[callback + "done"];
+	   }, 1000);
+
+	   // [6] Attach the script element to the document body.
+	   document.body.appendChild(script);
+	  }-*/;
+
+	/**
+	 * Handle the response to the request for stock data from a remote server.
+	 */
+	public void handleJsonResponse(JavaScriptObject jso) {
+		if (jso == null) {
+			displayError("Couldn't retrieve JSON");
+			return;
+		}
+		String ggg = jso.toString();
+		GWT.log(ggg);
+		loadTableModelQueryResult( asNORMAL_ARRAY(jso).getDataTable());
+
+	}
 
 }
