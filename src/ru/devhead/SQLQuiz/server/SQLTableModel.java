@@ -1,38 +1,77 @@
 package ru.devhead.SQLQuiz.server;
 
+//import javax.swing.table.AbstractTableModel;
 import java.sql.*;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+//import java.util.logging.SimpleFormatter;
+//import java.util.logging.StreamHandler;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
-@SuppressWarnings("serial")
-public class MainWorker extends HttpServlet {
+public class SQLTableModel  {
+
+	
+	private static final long serialVersionUID = 1L;
+	
+	// table of data 
+	Object [][] tableData;
+	String[] columnNames; 
 	
 	//URL for the database connection
-	String databaseURL = "url";
+	String databaseURL;
 	// Array of column names
+	String query;
+	// Driver name
 	String driverName = "org.postgresql.Driver";
 	String username = "test";
 	String password = "123";
 	
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp) 
-		throws ServletException, IOException {
+	Logger logger;
+	
+	
+	SQLTableModel() {
+		logger = Logger.getLogger("MyLog");
+		logger.setLevel(Level.ALL);
+		logger.info( "Create SQLTableModel");
 
-		    PrintWriter out = resp.getWriter();
-		    out.println('[');
-		    String requestId = req.getParameter("requestid");
-		    String query = req.getParameter("query");
-//		    out.println("callback"+requesid +""({datatable:[["f","d","g"],["ads","fsdf","fsdf"],["5345345","45345345","534534"]]}); 
-		    out.println(']');
-		    out.flush();
+		//defaultdata
+		tableData = new String[][] {{"Результат запроса"} };
+		columnNames = new String[] {" "};
+//		fireTableDataChanged();
+	}
+	
+	
+	public int getColumnCount() {
+		
+		return columnNames == null ? 0 : columnNames.length;
 	}
 
-	void loadTableData(String query) {
-		Object [][] tableData;
+	public String getColumnName(int nCol) {
+
+		return columnNames == null ? "unknow" : columnNames[nCol];
+	}
+	
+	
+	public int getRowCount() {
+		
+		return tableData == null ? 0 : tableData.length;
+	}
+	
+	
+
+	
+	public Object getValueAt(int nRow, int nCol) {
+	
+		return tableData[nRow][nCol];
+	}
+	
+	public boolean isCellEditable(int nRow, int nCol) {
+		
+	    return false;
+	  }
+
+	void loadTableData() {
+
 		System.out.println(driverName);
 		try {
 			Class.forName(driverName);
@@ -53,17 +92,17 @@ public class MainWorker extends HttpServlet {
 			columnNames = new String[numberOfColumns];
 			// get the column names; column indexes start from 1
 			for (int i = 1; i < numberOfColumns + 1; i++) {
-//				logger.info(rsmd.getColumnName(i));
+				logger.info(rsmd.getColumnName(i));
 				// [i-1] because array indexes start from 0
 				columnNames[i - 1] = rsmd.getColumnName(i);
-//				logger.info(columnNames[i - 1]);
+				logger.info(columnNames[i - 1]);
 			}
 			// create new array of table data
 			rs.last();
 			int numberOfRow = rs.getRow();
 			tableData = new String[numberOfRow][numberOfColumns];
 			rs.beforeFirst();
-//			logger.info("numberOfRow = " + numberOfRow);
+			logger.info("numberOfRow = " + numberOfRow);
 			// get the table data
 			// row loop
 			for (int i = 1; i < numberOfRow + 1; i++) {
@@ -85,5 +124,12 @@ public class MainWorker extends HttpServlet {
 			e.printStackTrace();
 		}
 	}
-	
+
+	void executeQuery(String databaseURL, String query) {
+		
+		this.databaseURL = databaseURL;
+		this.query = query;
+		loadTableData();
+	}
+
 }

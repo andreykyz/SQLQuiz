@@ -7,6 +7,7 @@ import com.google.gwt.core.client.JavaScriptObject;
 //import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.ui.*;
 
 public class ValidatorGui implements EntryPoint {
@@ -79,7 +80,7 @@ public class ValidatorGui implements EntryPoint {
 
 	void executeButtonClick() {
 
-		String url = JSON_URL;//URL.encode(JSON_URL + queryPlace.getText());
+		String url = URL.encode(JSON_URL + "?requestid=" + jsonRequestId + "?query=" + queryPlace.getText());
 		getJson(jsonRequestId++, url, this);
 
 	}
@@ -111,7 +112,7 @@ public class ValidatorGui implements EntryPoint {
 	}
 	
 	void displayError(String er) {
-		tableModelQueryResult = new String[0][0];
+		tableModelQueryResult = new String[1][1];
 		tableModelQueryResult[0][0] = er;
 		
 		fireTableQueryResultUpdate();
@@ -135,7 +136,7 @@ public class ValidatorGui implements EntryPoint {
 	public native static void getJson(int requestId, String url,
 			ValidatorGui handler) /*-{
 				//имя callback функции
-	   var callback = "callback125";
+	   var callback = "callback" + requestId;
 
 	   // [1] Create a script element.
 	   var script = document.createElement("script");
