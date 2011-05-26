@@ -22,7 +22,7 @@ public class MainWorker extends HttpServlet {
 	String databaseURL = "url";
 	// Array of column names
 	String driverName = "org.postgresql.Driver";
-	String username = "test";
+	String username = "tester";
 	String password = "123";
 	
 	protected final static Logger logger = Logger.getLogger(MainWorker.class);
@@ -101,7 +101,8 @@ public class MainWorker extends HttpServlet {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return (tableData).toString();
+		
+		return tableData.toString();
 //		for (int i=0; i<tableData.size(); i++) {
 //			jSONTableData.add(new JSONArray(jSONTableData.get));
 //		}
